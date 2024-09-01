@@ -11,9 +11,10 @@
         <input type="text" id="question" name="question"><br><br>
         <label for="role">请选择角色：</label><br>
         <select id="role" name="role">
+            <option value="user">用户</option>
             <option value="doctor">医生</option>
             <option value="teacher">老师</option>
-            <!-- 你 可以根据需求添加更多角色 -->
+            <!-- 你可以根据需求添加更多角色 -->
         </select><br><br>
         <button type="button" onclick="askQuestion()">提交</button>
     </form>
@@ -33,7 +34,11 @@
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('response').innerText = data.data.result;
+                if (data.code === 0 && data.data) {
+                    document.getElementById('response').innerText = JSON.stringify(data.data, null, 2);
+                } else {
+                    document.getElementById('response').innerText = 'API 调用错误: ' + (data.message || '未知错误');
+                }
             })
             .catch(error => console.error('Error:', error));
         }

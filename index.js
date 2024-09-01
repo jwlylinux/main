@@ -1,7 +1,8 @@
 const express = require("express");
-const axios = require("axios");
 const cors = require("cors");
 const path = require("path");
+const { ChatCompletion, setEnvVariable } = require("@baiducloud/qianfan");
+const { init: initDB } = require("./db");  // 引入数据库初始化函数
 
 const app = express();
 app.use(express.urlencoded({ extended: false }));
@@ -9,48 +10,43 @@ app.use(express.json());
 app.use(cors());
 
 // 百度文心千帆 API 配置
-const apiKey = 'j0o1cQEo3gBbDAmXvJ7x61sE';
-const secretKey = 'tWxvmiLWCwTrlJ0Chq8OxymKUq52etHS';
-const appId = '101171466';
+setEnvVariable('QIANFAN_ACCESS_KEY', 'j0o1cQEo3gBbDAmXvJ7x61sEj0o1cQEo3gBbDAmXvJ7x61sE');  // 替换为你的 Access Key
+setEnvVariable('QIANFAN_SECRET_KEY', 'tWxvmiLWCwTrlJ0Chq8OxymKUq52etHS');  // 替换为你的 Secret Key
 
-// 获取 Access Token
-async function getAccessToken() {
-  const response = await axios.post('https://aip.baidubce.com/oauth/2.0/token', null, {
-    params: {
-      grant_type: 'client_credentials',
-      client_id: apiKey,
-      client_secret: secretKey,
-    },
-  });
+const client = new ChatCompletion();
 
-  return response.data.access_token;
-}
-
-// 调用百度文心千帆 API
+// 调用百度文心千帆 API 路由
 app.post("/api/ask", async (req, res) => {
   const { question, role } = req.body;
 
   try {
-    const accessToken = await getAccessToken();
-    
-    const response = await axios.post(`https://aip.baidubce.com/rpc/2.0/ai_custom_model/v1/${appId}`, {
-      question: question,
-      role: role,
-    }, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`
-      }
-    });
+    const resp = await client.chat({
+        messages: [
+            {
+                role: role || 'user',  // 使用传入的角色或默认角色
+                content: question,
+            },
+        ],
+    }, 'ERNIE-3.5-8K');
 
     res.send({
       code: 0,
-      data: response.data,
+      data: resp,
     });
   } catch (error) {
     res.status(500).send({
       code: 1,
       message: error.toString(),
     });
+  }
+});
+
+// 微信小程序调用，获取微信 OpenID 路由
+app.get("/api/wx_openid", async (req, res) => {
+  if (req.headers["x-wx-source"]) {
+    res.send(req.headers["x-wx-openid"]);
+  } else {
+    res.status(400).send({ code: 1, message: "Invalid request source" });
   }
 });
 
@@ -61,7 +57,12 @@ app.get("/", (req, res) => {
 
 const port = process.env.PORT || 80;
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+async function bootstrap() {
+  await initDB();  // 初始化数据库
+  app.listen(port, () => {
+    console.log("启动成功", port);
+  });
+}
+
+bootstrap();
 
