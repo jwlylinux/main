@@ -1,48 +1,141 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>问答平台</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BDIP-AI Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        header p {
+            color: #666;
+            margin: 5px 0 0;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        .questions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .question {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .question:hover {
+            background-color: #e0e0e0;
+        }
+
+        button#refresh {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button#refresh:hover {
+            background-color: #0056b3;
+        }
+
+        footer {
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .input-container {
+            display: flex;
+            flex-grow: 1;
+        }
+
+        .input-container input {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+
+        .send-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .send-button:hover {
+            background-color: #218838;
+        }
+    </style>
 </head>
 <body>
-    <h1>问答平台</h1>
-    <form id="askForm">
-        <label for="question">请输入您的问题：</label><br>
-        <input type="text" id="question" name="question"><br><br>
-        <label for="role">请选择角色：</label><br>
-        <select id="role" name="role">
-            <option value="user">用户</option>
-            <option value="doctor">医生</option>
-            <option value="teacher">老师</option>
-            <!-- 你可以根据需求添加更多角色 -->
-        </select><br><br>
-        <button type="button" onclick="askQuestion()">提交</button>
-    </form>
-    <div id="response"></div>
-
-    <script>
-        function askQuestion() {
-            const question = document.getElementById('question').value;
-            const role = document.getElementById('role').value;
-
-            fetch('/api/ask', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ question, role })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.code === 0 && data.data) {
-                    document.getElementById('response').innerText = JSON.stringify(data.data, null, 2);
-                } else {
-                    document.getElementById('response').innerText = 'API 调用错误: ' + (data.message || '未知错误');
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
-    </script>
+    <div class="container">
+        <header>
+            <h1>BDIP-AI助手</h1>
+            <p>您可以这样向我提问</p>
+        </header>
+        <main>
+            <div class="questions">
+                <div class="question">我想了解毕埃（上海）建筑数据技术股份有限公司</div>
+                <div class="question">我想招聘一个BIM工程师，需要什么能力？</div>
+                <div class="question">BIM项目经理的岗位职责</div>
+                <div class="question">BIM技术是不是一个不断发展和更新的领域，目前国内外有哪些新的BIM技术研究方向和应用？</div>
+                <div class="question">土木工程专业刚毕业，倾向于BIM方向发展，我应该去哪个城市寻找工作机会？</div>
+                <div class="question">BIM专业负责人的岗位职责</div>
+            </div>
+            <button id="refresh">换一批</button>
+        </main>
+        <footer>
+            <div class="input-container">
+                <input type="text" placeholder="你想找我聊点什么？(按Shift + Enter 可换行)">
+                <button class="send-button">发送</button>
+            </div>
+        </footer>
+    </div>
 </body>
 </html>
 
