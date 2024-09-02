@@ -35,9 +35,10 @@ app.post("/api/ask", async (req, res) => {
       ],
     }, 'ERNIE-3.5-8K');
 
+    // 这里将百度返回的结果发送给前端
     res.send({
       code: 0,
-      data: response.data,
+      data: response.result, // 确保这里获取到正确的结果
     });
   } catch (error) {
     res.status(500).send({
@@ -57,7 +58,7 @@ app.get("/api/wx_openid", async (req, res) => {
 const port = process.env.PORT || 80;
 
 async function bootstrap() {
-  await initDB(); // 初始化数据库
+//  await initDB(); // 初始化数据库
   app.listen(port, () => {
     console.log("启动成功", port);
   });

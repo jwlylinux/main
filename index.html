@@ -3,25 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI助手</title>
+    <title>AI助手demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #chatbox {
+            width: 50%;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+        .user-message {
+            background-color: #dcf8c6;
+            align-self: flex-end;
+            text-align: right;
+        }
+        .bot-message {
+            background-color: #ececec;
+            align-self: flex-start;
+        }
+        #inputbox {
+            width: 50%;
+            margin: 10px auto;
+            display: flex;
+        }
+        #inputbox input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        #inputbox button {
+            margin-left: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+    </style>
 </head>
 <body>
     <h1>AI助手demo</h1>
-    <p>您可以这样向我提问</p>
-
-    <div id="questions">
-        <button onclick="askQuestion('我想了解xxxx建筑数据技术股份有限公司')">我想了解xxxx建筑数据技术股份有限公司</button>
-        <button onclick="askQuestion('我想招聘一个BIM工程师，需要什么能力？')">我想招聘一个BIM工程师，需要什么能力？</button>
-        <!-- 你可以添加更多问题按钮 -->
+    <div id="chatbox"></div>
+    <div id="inputbox">
+        <input type="text" id="question" placeholder="你想找我聊点什么？">
+        <button onclick="askCustomQuestion()">发送</button>
     </div>
 
-    <div id="response"></div>
-
-    <input type="text" id="customQuestion" placeholder="你想找我聊点什么？">
-    <button onclick="askCustomQuestion()">发送</button>
-
     <script>
-        // 与后端交互，发送问题并接收回答
+        async function askCustomQuestion() {
+            const question = document.getElementById('question').value;
+            if (question) {
+                addMessage('user', question);
+                const response = await askQuestion(question);
+                addMessage('bot', response.data);
+                document.getElementById('question').value = '';
+            } else {
+                alert('请输入一个问题');
+            }
+        }
+
         async function askQuestion(question) {
             try {
                 const response = await fetch('/api/ask', {
@@ -31,28 +93,21 @@
                     },
                     body: JSON.stringify({ question: question })
                 });
-                const data = await response.json();
-                displayResponse(data.data);
+                return await response.json();
             } catch (error) {
                 console.error('Error:', error);
-                displayResponse('请求失败，请稍后重试。');
+                return { data: '请求失败，请稍后重试。' };
             }
         }
 
-        // 发送自定义问题
-        async function askCustomQuestion() {
-            const question = document.getElementById('customQuestion').value;
-            if (question) {
-                await askQuestion(question);
-            } else {
-                alert('请输入一个问题');
-            }
-        }
-
-        // 显示AI助手的回复
-        function displayResponse(response) {
-            const responseDiv = document.getElementById('response');
-            responseDiv.innerHTML = `<p>${response}</p>`;
+        function addMessage(sender, text) {
+            const chatbox = document.getElementById('chatbox');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+            messageDiv.innerText = text;
+            chatbox.appendChild(messageDiv);
+            chatbox.scrollTop = chatbox.scrollHeight; // 自动滚动到底部
         }
     </script>
 </body>
