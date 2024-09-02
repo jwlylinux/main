@@ -1,141 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Assistant Demo</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        header {
-            text-align: center;
-            padding: 20px;
-            background-color: #f5f5f5;
-            border-bottom: 1px solid #ddd;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-
-        header p {
-            color: #666;
-            margin: 5px 0 0;
-        }
-
-        main {
-            padding: 20px;
-        }
-
-        .questions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .question {
-            background-color: #f0f0f0;
-            padding: 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .question:hover {
-            background-color: #e0e0e0;
-        }
-
-        button#refresh {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button#refresh:hover {
-            background-color: #0056b3;
-        }
-
-        footer {
-            padding: 20px;
-            background-color: #f5f5f5;
-            border-top: 1px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .input-container {
-            display: flex;
-            flex-grow: 1;
-        }
-
-        .input-container input {
-            flex-grow: 1;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            margin-right: 10px;
-        }
-
-        .send-button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .send-button:hover {
-            background-color: #218838;
-        }
-    </style>
+    <title>AI助手demo</title>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>AI助手demo</h1>
-            <p>您可以这样向我提问</p>
-        </header>
-        <main>
-            <div class="questions">
-                <div class="question">我想了解xxxx建筑数据技术股份有限公司</div>
-                <div class="question">我想招聘一个BIM工程师，需要什么能力？</div>
-                <div class="question">BIM项目经理的岗位职责</div>
-                <div class="question">BIM技术是不是一个不断发展和更新的领域，目前国内外有哪些新的BIM技术研究方向和应用？</div>
-                <div class="question">土木工程专业刚毕业，倾向于BIM方向发展，我应该去哪个城市寻找工作机会？</div>
-                <div class="question">BIM专业负责人的岗位职责</div>
-            </div>
-            <button id="refresh">换一批</button>
-        </main>
-        <footer>
-            <div class="input-container">
-                <input type="text" placeholder="你想找我聊点什么？(按Shift + Enter 可换行)">
-                <button class="send-button">发送</button>
-            </div>
-        </footer>
+    <h1>AI助手demo</h1>
+    <p>您可以这样向我提问</p>
+
+    <div id="questions">
+        <button onclick="askQuestion('我想了解xxxx建筑数据技术股份有限公司')">我想了解xxxx建筑数据技术股份有限公司</button>
+        <button onclick="askQuestion('我想招聘一个BIM工程师，需要什么能力？')">我想招聘一个BIM工程师，需要什么能力？</button>
+        <!-- 你可以添加更多问题按钮 -->
     </div>
+
+    <div id="response"></div>
+
+    <input type="text" id="customQuestion" placeholder="你想找我聊点什么？">
+    <button onclick="askCustomQuestion()">发送</button>
+
+    <script>
+        // 与后端交互，发送问题并接收回答
+        async function askQuestion(question) {
+            try {
+                const response = await fetch('/api/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ question: question })
+                });
+                const data = await response.json();
+                displayResponse(data.data);
+            } catch (error) {
+                console.error('Error:', error);
+                displayResponse('请求失败，请稍后重试。');
+            }
+        }
+
+        // 发送自定义问题
+        async function askCustomQuestion() {
+            const question = document.getElementById('customQuestion').value;
+            if (question) {
+                await askQuestion(question);
+            } else {
+                alert('请输入一个问题');
+            }
+        }
+
+        // 显示AI助手的回复
+        function displayResponse(response) {
+            const responseDiv = document.getElementById('response');
+            responseDiv.innerHTML = `<p>${response}</p>`;
+        }
+    </script>
 </body>
 </html>
 
