@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const { setEnvVariable, ChatCompletion } = require("@baiducloud/qianfan");
-const { init: initDB } = require("./db"); // 假设你有一个 `db.js` 文件进行数据库初始化
+//const { init: initDB } = require("./db"); // 假设你有一个 `db.js` 文件进行数据库初始化
 
 const app = express();
 app.use(express.urlencoded({ extended: false }));
